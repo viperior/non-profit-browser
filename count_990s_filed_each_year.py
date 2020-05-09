@@ -4,6 +4,7 @@ import urllib.request as request
 
 first_year_of_available_filings = 2013
 index_file_path_prefix = 'https://s3.amazonaws.com/irs-form-990/index_'
+filing_counts_data_file_path = 'data/yearly_filing_counts.json'
 
 # Get the current year.
 current_time = datetime.datetime.utcnow()
@@ -28,9 +29,19 @@ for filing_year in irs_990_filings_year_range:
         source = None
         primary_node_key = 'Filings' + str(filing_year)
         current_filing_count = len(json_data[primary_node_key])
+        json_data = None
         irs_990_filings[filing_year]['filing_count'] = current_filing_count
 
 # Display the counts.
 for filing_year in irs_990_filings_year_range:
     print('Filing year: ' + str(filing_year))
     print('Count: ' + str(irs_990_filings[filing_year]['filing_count']))
+    
+# Save the counts to disk.
+yearly_filing_counts_dict = {}
+
+for filing_year in irs_990_filings_year_range:
+    yearly_filing_counts_dict[filing_year] = irs_990_filings[filing_year]['filing_count']
+    
+with open(filing_counts_data_file_path, 'w') as yearly_filing_counts_file:
+    json.dump(yearly_filing_counts_dict, yearly_filing_counts_file)
