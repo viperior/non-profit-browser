@@ -16,6 +16,7 @@ year_range = range(start_year, end_year)
 index_file_prefix = 'https://s3.amazonaws.com/irs-form-990/index_'
 samples_per_year = 3
 sample_indices = {}
+target_data_file_path = 'data/sample_990s.json'
 
 # Generate random numbers to pull 990 data.
 with open('data/yearly_filing_counts.json', 'r') as file:
@@ -33,6 +34,8 @@ with open('data/yearly_filing_counts.json', 'r') as file:
             
         sample_indices[current_year] = current_sample_indices
 
+sample_filings = []
+
 for year in range(start_year, end_year):
     with request.urlopen(index_file_prefix + str(year) + '.json') as response:
         source = response.read()
@@ -41,4 +44,8 @@ for year in range(start_year, end_year):
         
         for sample_index in sample_indices[year]:
             filing = json_data['Filings' + str(year)][sample_index]
+            sample_filings.append(filing)
             print(filing)
+            
+with open(target_data_file_path, 'w') as file:
+    json.dump(sample_filings, file)
