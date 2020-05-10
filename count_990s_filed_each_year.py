@@ -24,6 +24,7 @@ for year in irs_990_filings_year_range:
 # Count the number of filings per year.
 for filing_year in irs_990_filings_year_range:
     with request.urlopen(irs_990_filings[filing_year]['index_file_path']) as response:
+        print('Filing year: ' + str(filing_year))
         source = response.read()
         json_data = json.loads(source)
         source = None
@@ -31,17 +32,16 @@ for filing_year in irs_990_filings_year_range:
         current_filing_count = len(json_data[primary_node_key])
         json_data = None
         irs_990_filings[filing_year]['filing_count'] = current_filing_count
+        print('Count: ' + str(irs_990_filings[filing_year]['filing_count']))
 
-# Display the counts.
-for filing_year in irs_990_filings_year_range:
-    print('Filing year: ' + str(filing_year))
-    print('Count: ' + str(irs_990_filings[filing_year]['filing_count']))
-    
 # Save the counts to disk.
-yearly_filing_counts_dict = {}
+yearly_filing_counts_list = []
 
 for filing_year in irs_990_filings_year_range:
-    yearly_filing_counts_dict[filing_year] = irs_990_filings[filing_year]['filing_count']
+    current_filing_year_dict = {}
+    current_filing_year_dict['Year'] = filing_year
+    current_filing_year_dict['Filing Count'] = irs_990_filings[filing_year]['filing_count']
+    yearly_filing_counts_list.append(current_filing_year_dict)
     
 with open(filing_counts_data_file_path, 'w') as yearly_filing_counts_file:
-    json.dump(yearly_filing_counts_dict, yearly_filing_counts_file)
+    json.dump(yearly_filing_counts_list, yearly_filing_counts_file)
