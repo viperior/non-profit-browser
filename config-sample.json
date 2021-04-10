@@ -1,5 +1,6 @@
 {
-    "postgres_hostname": "localhost",
+    "postgres_host": "localhost",
+    "postgres_database": "npb",
     "postgres_username": "postgres",
     "postgres_password": "YOUR_PASSWORD"
 }
