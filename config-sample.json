@@ -1,0 +1,5 @@
+{
+    "postgres_hostname": "localhost",
+    "postgres_username": "postgres",
+    "postgres_password": "YOUR_PASSWORD"
+}
