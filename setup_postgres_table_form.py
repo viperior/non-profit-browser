@@ -20,7 +20,7 @@ def main():
                 irs_form_id bigint NOT NULL,
                 return_version text NOT NULL,
                 ein bigint NOT NULL,
-                entity_name text NOT NULL
+                return_filer_name text NOT NULL
             );
         """
         cursor.execute(sql)
