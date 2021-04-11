@@ -18,7 +18,7 @@ def main():
             CREATE TABLE IF NOT EXISTS form (
                 form_id bigserial PRIMARY KEY,
                 irs_form_id bigint NOT NULL,
-                form_schema_version text NOT NULL,
+                return_version text NOT NULL,
                 entity_name text NOT NULL
             );
         """
