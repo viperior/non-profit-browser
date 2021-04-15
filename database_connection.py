@@ -1,12 +1,15 @@
+import json
+import psycopg2
+
 class DatabaseConnection:
     def __init__(self):
-        self.config = get_config()
+        self.config = self.get_config()
         self.host = self.config['database_host']
         self.username = self.config['database_username']
         self.schema = self.config['database_schema']
         self.password = self.config['database_password']
 
-    def execute_sql(sql):
+    def execute_sql(self, sql):
         try:
             connection = psycopg2.connect(
                 host = self.host,
@@ -27,20 +30,23 @@ class DatabaseConnection:
             message = template.format(type(ex).__name__, ex.args)
             print(message)
 
-    def get_config():
+    def get_config(self):
         with open('config.json', 'r') as input_file:
             config_data = json.load(input_file)
 
         return config_data
 
-    def setup_database():
-        setup_database_schema()
-        setup_database_tables()
+    def setup_database(self):
+        self.uninstall_database()
+        self.setup_database_schema()
+        self.setup_database_tables()
+        print('[SUCCESS] Non-Profit Browser database installation complete!')
 
-    def setup_database_schema()
-        execute_sql(f"CREATE DATABASE {self.schema};")
 
-    def setup_database_tables():
+    def setup_database_schema(self):
+        self.execute_sql(f"CREATE DATABASE {self.schema};")
+
+    def setup_database_tables(self):
         sql = """
             CREATE TABLE IF NOT EXISTS form (
                 form_id bigserial PRIMARY KEY,
@@ -50,4 +56,7 @@ class DatabaseConnection:
                 return_filer_name text NOT NULL
             );
         """
-        execute_sql(sql)
+        self.execute_sql(sql)
+
+    def uninstall_database(self):
+        self.execute_sql(f"DROP DATABASE IF EXISTS {self.schema};")
