@@ -1,8 +1,7 @@
-import setup_database
-import setup_database_table_form
+import database_connection
 
 def main():
-    setup_database.main()
-    setup_database_table_form.main()
+    npb_db_connection = DatabaseConnection()
+    npb_db_connection.setup_database()
 
 main()
