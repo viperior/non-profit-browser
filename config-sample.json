@@ -1,6 +1,6 @@
 {
-    "postgres_host": "localhost",
-    "postgres_database": "npb",
-    "postgres_username": "postgres",
-    "postgres_password": "YOUR_PASSWORD"
+    "database_host": "127.0.0.1",
+    "database_schema": "npb",
+    "database_username": "postgres",
+    "database_password": "YOUR_PASSWORD"
 }

@@ -2,14 +2,18 @@ import json
 import psycopg2
 
 def main():
+    host = config_data['database_host'],
+    user = config_data['database_username'],
+    password = config_data['database_password']
+    
     try:
         with open('config.json', 'r') as config_file:
             config_data = json.load(config_file)
 
         connection = psycopg2.connect(
-            host = config_data['postgres_host'],
-            user = config_data['postgres_username'],
-            password = config_data['postgres_password']
+            host = host,
+            user = user,
+            password = password
         )
 
         autocommit = psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT
@@ -21,7 +25,7 @@ def main():
         cursor.close()
         connection.close()
     except Exception as ex:
-        print('Error occurred while attempting to connect to postgres database.')
+        print('Error occurred while attempting to connect to database host: ', host)
         template = "An exception of type {0} occurred. Arguments:\n{1!r}"
         message = template.format(type(ex).__name__, ex.args)
         print(message)
