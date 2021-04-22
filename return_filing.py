@@ -9,7 +9,7 @@ class ReturnFiling:
         self.return_data_dict = self.get_return_data_dict()
 
     def display_contents(self):
-        print('EIN: ', self.get_return_ein())
+        print('EIN: ', self.get_return_filer_ein())
         print('Name: ', self.get_return_filer_name_full())
         print('Address: ', self.get_return_filer_address_full())
         print('File: ', self.form_file_name)
@@ -22,7 +22,7 @@ class ReturnFiling:
     def get_return_data_dict(self):
         return dict(xmltodict.parse(self.get_xml_string()))
 
-    def get_return_ein(self):
+    def get_return_filer_ein(self):
         return self.get_return_filer()['ns0:EIN']
 
     def get_return_filer(self):
