@@ -1,0 +1,6 @@
+{
+    "database_host": "127.0.0.1",
+    "database_schema": "npb",
+    "database_username": "postgres",
+    "database_password": "YOUR_PASSWORD"
+}
