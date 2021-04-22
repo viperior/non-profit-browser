@@ -1,3 +1,6 @@
+import xml.etree.ElementTree as ET
+import xmltodict
+
 class ReturnFiling:
     def __init__(self, form_file_name, form_path):
         self.form_file_name = form_file_name

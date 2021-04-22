@@ -1,8 +1,5 @@
 import os
 import return_filing
-import xml.dom.minidom
-import xml.etree.ElementTree as ET
-import xmltodict
 
 def main():
     limit = 5
@@ -14,7 +11,7 @@ def main():
             break
         else:
             full_form_path = directory + "\\" + form_path.name
-            current_return = ReturnFiling(form_path.name, full_form_path)
+            current_return = return_filing.ReturnFiling(form_path.name, full_form_path)
             current_return.display_contents()
 
 main()
