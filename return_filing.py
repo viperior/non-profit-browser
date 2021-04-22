@@ -7,6 +7,7 @@ class ReturnFiling:
         self.return_s3_doc_id = form_file_name.replace('_public.xml', '')
         self.form_path = form_path
         self.return_data_dict = self.get_return_data_dict()
+        self.database_payload = self.get_database_payload()
 
     def display_contents(self):
         print('EIN: ', self.get_return_filer_ein())
@@ -15,6 +16,16 @@ class ReturnFiling:
         print('File: ', self.form_file_name)
         print('Return version: ', self.get_return_version())
         print('===')
+
+    def get_database_payload(self):
+        payload = {
+            "form_file_name": self.form_file_name,
+            "return_s3_doc_id": self.return_s3_doc_id,
+            "return_version": self.get_return_version(),
+            "ein": self.get_return_filer_ein(),
+            "return_filer_name": self.get_return_filer_name_full()
+        }
+        return payload
 
     def get_return_data(self):
         return self.return_data_dict['ns0:Return']
