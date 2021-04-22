@@ -9,11 +9,11 @@ class ReturnFiling:
         self.return_data_dict = self.get_return_data_dict()
 
     def display_contents(self):
-        print(self.form_file_name)
         print('EIN: ', self.get_return_ein())
         print('Name: ', self.get_return_filer_name_full())
         print('Address: ', self.get_return_filer_address_full())
         print('File: ', self.form_file_name)
+        print('Return version: ', self.get_return_version())
         print('===')
 
     def get_return_data(self):
@@ -29,12 +29,20 @@ class ReturnFiling:
         return self.get_return_header()['ns0:Filer']
 
     def get_return_filer_address(self):
-        return self.get_return_filer()['ns0:USAddress']
+        return_filer = self.get_return_filer()
 
+        if 'ns0:USAddress' in return_filer.keys():
+            return self.get_return_filer()['ns0:USAddress']
+        elif 'ns0:ForeignAddress' in return_filer.keys():
+            return self.get_return_filer()['ns0:ForeignAddress']
+        else:
+            print('[ERROR] Could not find keys, ns0:USAddress or ns0:ForeignAddress, in file: ', self.form_file_name)
+            print(return_filer.keys())
+            return 'Address Not Found'
+        
     def get_return_filer_address_full(self):
         return_string = ''
         return_filer_address = self.get_return_filer_address()
-        return_filer_address_keys = return_filer_address.keys()
 
         values_to_add = [
             'ns0:AddressLine1',
@@ -45,7 +53,7 @@ class ReturnFiling:
         ]
 
         for i, value in enumerate(values_to_add):
-            if value in return_filer_address_keys:
+            if value in return_filer_address.keys():
                 return_string += return_filer_address[value]
 
                 if i < len(values_to_add) - 1:
@@ -67,6 +75,9 @@ class ReturnFiling:
 
     def get_return_header(self):
         return self.get_return_data()['ns0:ReturnHeader']
+
+    def get_return_version(self):
+        return self.get_return_data()['@returnVersion']
 
     def get_xml_data(self):
         return self.get_xml_tree().getroot()
