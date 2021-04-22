@@ -4,7 +4,7 @@ import xmltodict
 class ReturnFiling:
     def __init__(self, form_file_name, form_path):
         self.form_file_name = form_file_name
-        self.return_s3_doc_id = form_file_name.replace('_public.xml', '')
+        self.return_s3_doc_id = int(form_file_name.replace('_public.xml', ''))
         self.form_path = form_path
         self.return_data_dict = self.get_return_data_dict()
         self.database_payload = self.get_database_payload()
