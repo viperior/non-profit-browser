@@ -42,7 +42,6 @@ class DatabaseConnection:
         self.setup_database_tables()
         print('[SUCCESS] Non-Profit Browser database installation complete!')
 
-
     def setup_database_schema(self):
         self.execute_sql(f"CREATE DATABASE {self.schema};")
 
