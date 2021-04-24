@@ -1,11 +1,13 @@
+import requests
 import xml.etree.ElementTree as ET
 import xmltodict
 
 class ReturnFiling:
-    def __init__(self, form_file_name, form_path):
+    def __init__(self, form_file_name, form_path=None):
         self.form_file_name = form_file_name
         self.return_s3_doc_id = int(form_file_name.replace('_public.xml', ''))
         self.form_path = form_path
+        self.load_method = self.get_load_method()
         self.return_data_dict = self.get_return_data_dict()
         self.database_payload = self.get_database_payload()
 
@@ -27,6 +29,14 @@ class ReturnFiling:
             "total_assets": self.get_total_assets_eoy()
         }
         return payload
+
+    def get_load_method(self):
+        if self.form_path == None:
+            method = 's3'
+        else:
+            method = 'file'
+
+        return method
         
     def get_return_data(self):
         return self.return_data_dict['ns0:Return']
@@ -125,10 +135,22 @@ class ReturnFiling:
         return total_assets
 
     def get_xml_data(self):
-        return self.get_xml_tree().getroot()
+        return self.get_xml_tree()
 
     def get_xml_string(self):
         return ET.tostring(self.get_xml_data(), encoding='utf-8', method='xml')
 
     def get_xml_tree(self):
-        return ET.parse(self.form_path)
+        if self.load_method == 'file':
+            xml_tree = ET.parse(self.form_path).getroot()
+        elif self.load_method == 's3':
+            url = (
+                f"https://s3.amazonaws.com/irs-form-990/"
+                f"{self.form_file_name}"
+            )
+            r = requests.get(url)
+            xml_tree = ET.fromstring(r.content)
+        else:
+            print(f"[ERROR] Unhandled load method: {self.load_method}")
+
+        return xml_tree
