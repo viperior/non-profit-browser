@@ -20,4 +20,5 @@ def main():
             current_return = return_filing.ReturnFiling(form_path.name, full_form_path)
             connection.insert_single_record(current_return.get_database_payload())
 
-main()
+if __name__ == '__main__':
+    main()

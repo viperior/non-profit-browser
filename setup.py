@@ -4,4 +4,5 @@ def main():
     npb_db_connection = database_connection.DatabaseConnection()
     npb_db_connection.setup_database()
 
-main()
+if __name__ == '__main__':
+    main()
