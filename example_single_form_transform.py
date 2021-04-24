@@ -7,4 +7,5 @@ def main():
     single_return = return_filing.ReturnFiling(form_file_name, form_full_path)
     single_return.display_contents()
 
-main()
+if __name__ == '__main__':
+    main()

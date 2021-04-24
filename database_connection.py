@@ -83,7 +83,6 @@ class DatabaseConnection:
         sql += str(payload['ein']) + ','
         sql += "'" + payload['return_filer_name'] + "'"
         sql += ");"
-        print(sql)
         self.execute_sql(sql)
 
     def setup_database(self):
