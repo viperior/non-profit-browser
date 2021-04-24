@@ -14,7 +14,6 @@ def main():
         else:
             full_form_path = directory + "\\" + form_path.name
             current_return = return_filing.ReturnFiling(form_path.name, full_form_path)
-            current_return.display_contents()
             connection.insert_single_record(current_return.get_database_payload())
 
 main()
