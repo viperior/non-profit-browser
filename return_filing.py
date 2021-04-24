@@ -23,10 +23,11 @@ class ReturnFiling:
             "return_s3_doc_id": self.return_s3_doc_id,
             "return_version": self.get_return_version(),
             "ein": self.get_return_filer_ein(),
-            "return_filer_name": self.get_return_filer_name_full()
+            "return_filer_name": self.get_return_filer_name_full(),
+            "total_assets": self.get_total_assets_eoy()
         }
         return payload
-
+        
     def get_return_data(self):
         return self.return_data_dict['ns0:Return']
 
@@ -89,6 +90,39 @@ class ReturnFiling:
 
     def get_return_version(self):
         return self.get_return_data()['@returnVersion']
+
+    def get_total_assets_eoy(self):
+        return_data = self.get_return_data()['ns0:ReturnData']
+
+        form_types = [
+            '990',
+            '990EZ',
+            '990PF'
+        ]
+
+        for form_type in form_types:
+            form_key = f"ns0:IRS{form_type}"
+
+            if form_key in return_data.keys():
+                form = return_data[form_key]
+
+        total_asset_keys = [
+            'ns0:TotalAssetsEOY',
+            'ns0:TotalAssets',
+            'ns0:FMVAssetsEOY'
+        ]
+
+        for key in total_asset_keys:
+            if key in form.keys():
+                total_assets = form[key]
+                
+                if isinstance(total_assets, dict):
+                    if 'ns0:EOY' in total_assets.keys():
+                        total_assets = total_assets['ns0:EOY']
+                    
+                break
+
+        return total_assets
 
     def get_xml_data(self):
         return self.get_xml_tree().getroot()

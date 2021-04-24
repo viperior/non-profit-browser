@@ -2,5 +2,7 @@
     "database_host": "127.0.0.1",
     "database_schema": "npb",
     "database_username": "postgres",
-    "database_password": "YOUR_PASSWORD"
+    "database_password": "YOUR_PASSWORD",
+    "load_limit": 100,
+    "local_xml_storage_directory": "sample\\data\\990\\xml"
 }

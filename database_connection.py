@@ -9,7 +9,7 @@ class DatabaseConnection:
         self.schema = self.config['database_schema']
         self.password = self.config['database_password']
 
-    def execute_sql(self, sql, use_schema=True):
+    def execute_sql(self, sql, use_schema=True, data=None):
         try:
             if use_schema:
                 connection = self.get_connection_with_schema()
@@ -19,7 +19,12 @@ class DatabaseConnection:
             autocommit = psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT
             connection.set_isolation_level(autocommit)
             cursor = connection.cursor()    
-            cursor.execute(sql)
+            
+            if data == None:
+                cursor.execute(sql)
+            else:
+                cursor.execute(sql, data)
+
             connection.commit()
             cursor.close()
         except SyntaxError as ex:
@@ -63,28 +68,16 @@ class DatabaseConnection:
         return config_data
 
     def insert_single_record(self, payload):
-        keys = [
-            'return_s3_doc_id',
-            'return_version',
-            'ein',
-            'return_filer_name'
-        ]
-        sql = 'INSERT INTO form ('
-
-        for i, key in enumerate(keys):
-            sql += key
-
-            if i < len(keys) - 1:
-                sql += ','
-
-        sql += ") VALUES ("
-        sql += str(payload['return_s3_doc_id']) + ','
-        sql += "'" + payload['return_version'] + "',"
-        sql += str(payload['ein']) + ','
-        sql += "'" + payload['return_filer_name'] + "'"
-        sql += ");"
-        print(sql)
-        self.execute_sql(sql)
+        sql = "INSERT INTO form (return_s3_doc_id, return_version, ein,"\
+            "return_filer_name, total_assets) VALUES (%s, %s, %s, %s, %s);"
+        data = (
+            payload['return_s3_doc_id'],
+            payload['return_version'],
+            payload['ein'],
+            payload['return_filer_name'],
+            payload['total_assets']
+        )
+        self.execute_sql(sql=sql, data=data)
 
     def setup_database(self):
         self.uninstall_database()
@@ -105,7 +98,8 @@ class DatabaseConnection:
                 return_s3_doc_id bigint NOT NULL,
                 return_version text NOT NULL,
                 ein bigint NOT NULL,
-                return_filer_name text NOT NULL
+                return_filer_name text NOT NULL,
+                total_assets int
             );
         """
         self.execute_sql(sql)
