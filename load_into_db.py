@@ -14,7 +14,7 @@ def main():
     record_insert_count = 0
 
     for index, form_path in enumerate(file_list):
-        if index > limit:
+        if index + 1 > limit:
             break
         else:
             full_form_path = directory + "\\" + form_path.name
