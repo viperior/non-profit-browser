@@ -1,10 +1,14 @@
 import database_connection
+import json
 import os
 import return_filing
 
 def main():
-    limit = 5
-    directory = 'data\\indices'
+    with open('config.json', 'r') as config_file:
+        config_data = json.load(config_file)
+
+    limit = config_data['load_limit']
+    directory = config_data['local_xml_storage_directory']
     file_list = os.scandir(directory)
     connection = database_connection.DatabaseConnection()
 
