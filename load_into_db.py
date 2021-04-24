@@ -1,7 +1,9 @@
 import database_connection
 import json
 import os
+import progressbar
 import return_filing
+import time
 
 def main():
     with open('config.json', 'r') as config_file:
@@ -13,14 +15,16 @@ def main():
     connection = database_connection.DatabaseConnection()
     record_insert_count = 0
 
-    for index, form_path in enumerate(file_list):
-        if index + 1 > limit:
-            break
-        else:
-            full_form_path = directory + "\\" + form_path.name
-            current_return = return_filing.ReturnFiling(form_path.name, full_form_path)
-            connection.insert_single_record(current_return.get_database_payload())
-            record_insert_count += 1
+    with progressbar.ProgressBar(max_value=limit) as bar:
+        for index, form_path in enumerate(file_list):
+            if index + 1 > limit:
+                break
+            else:
+                full_form_path = directory + "\\" + form_path.name
+                current_return = return_filing.ReturnFiling(form_path.name, full_form_path)
+                connection.insert_single_record(current_return.get_database_payload())
+                record_insert_count += 1
+                bar.update(index)
 
     print(f"Rows inserted: {record_insert_count}")
 
