@@ -26,6 +26,7 @@ class ReturnFiling:
             "return_version": self.get_return_version(),
             "ein": self.get_return_filer_ein(),
             "return_filer_name": self.get_return_filer_name_full(),
+            "tax_year": self.get_return_tax_year(),
             "total_assets": self.get_total_assets_eoy()
         }
         return payload
@@ -97,6 +98,9 @@ class ReturnFiling:
 
     def get_return_header(self):
         return self.get_return_data()['ns0:ReturnHeader']
+
+    def get_return_tax_year(self):
+        return self.get_return_header()['ns0:TaxYear']
 
     def get_return_version(self):
         return self.get_return_data()['@returnVersion']
