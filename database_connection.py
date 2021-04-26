@@ -69,12 +69,14 @@ class DatabaseConnection:
 
     def insert_single_record(self, payload):
         sql = "INSERT INTO form (return_s3_doc_id, return_version, ein,"\
-            "return_filer_name, total_assets) VALUES (%s, %s, %s, %s, %s);"
+            "return_filer_name, tax_year, total_assets) "\
+                "VALUES (%s, %s, %s, %s, %s, %s);"
         data = (
             payload['return_s3_doc_id'],
             payload['return_version'],
             payload['ein'],
             payload['return_filer_name'],
+            payload['tax_year'],
             payload['total_assets']
         )
         self.execute_sql(sql=sql, data=data)
@@ -99,7 +101,8 @@ class DatabaseConnection:
                 return_version text NOT NULL,
                 ein bigint NOT NULL,
                 return_filer_name text NOT NULL,
-                total_assets int
+                tax_year int NOT NULL,
+                total_assets bigint
             );
         """
         self.execute_sql(sql)
