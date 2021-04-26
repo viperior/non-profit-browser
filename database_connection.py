@@ -102,7 +102,7 @@ class DatabaseConnection:
                 ein bigint NOT NULL,
                 return_filer_name text NOT NULL,
                 tax_year int NOT NULL,
-                total_assets int
+                total_assets bigint
             );
         """
         self.execute_sql(sql)
