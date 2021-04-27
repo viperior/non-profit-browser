@@ -19,16 +19,29 @@ class ReturnFiling:
         print('Return version: ', self.get_return_version())
         print('===')
 
-    def get_database_payload(self):
-        payload = {
-            "form_file_name": self.form_file_name,
-            "return_s3_doc_id": self.return_s3_doc_id,
-            "return_version": self.get_return_version(),
-            "ein": self.get_return_filer_ein(),
-            "return_filer_name": self.get_return_filer_name_full(),
-            "tax_year": self.get_return_tax_year(),
-            "total_assets": self.get_total_assets_eoy()
-        }
+    def get_database_payload(self, return_format='dict'):
+        if return_format == 'dict':
+            payload = {
+                "form_file_name": self.form_file_name,
+                "return_s3_doc_id": self.return_s3_doc_id,
+                "return_version": self.get_return_version(),
+                "ein": self.get_return_filer_ein(),
+                "return_filer_name": self.get_return_filer_name_full(),
+                "tax_year": self.get_return_tax_year(),
+                "total_assets": self.get_total_assets_eoy()
+            }
+        elif return_format == 'tuple':
+            payload = (
+                self.return_s3_doc_id,
+                self.get_return_version(),
+                int(self.get_return_filer_ein()),
+                self.get_return_filer_name_full(),
+                int(self.get_return_tax_year()),
+                int(self.get_total_assets_eoy())
+            )
+        else:
+            print(f"[ERROR] Unhandled return format, {return_format}")
+
         return payload
 
     def get_load_method(self):

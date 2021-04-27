@@ -4,5 +4,6 @@
     "database_username": "postgres",
     "database_password": "YOUR_PASSWORD",
     "load_limit": 100,
-    "local_xml_storage_directory": "sample\\data\\990\\xml"
+    "local_xml_storage_directory": "sample\\data\\990\\xml",
+    "etl_insert_batch_size_limit": 1000
 }

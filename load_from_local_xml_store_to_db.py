@@ -22,9 +22,11 @@ def main():
             else:
                 full_form_path = directory + "\\" + form_path.name
                 current_return = return_filing.ReturnFiling(form_path.name, full_form_path)
-                connection.insert_single_record(current_return.get_database_payload())
+                connection.store_row_to_database(current_return.get_database_payload(return_format='tuple'))
                 record_insert_count += 1
                 bar.update(index)
+
+        connection.store_queue_to_database()
 
     print(f"Rows inserted: {record_insert_count}")
 
