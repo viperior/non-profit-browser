@@ -1,11 +1,13 @@
+import requests
 import xml.etree.ElementTree as ET
 import xmltodict
 
 class ReturnFiling:
-    def __init__(self, form_file_name, form_path):
+    def __init__(self, form_file_name, form_path=None):
         self.form_file_name = form_file_name
         self.return_s3_doc_id = int(form_file_name.replace('_public.xml', ''))
         self.form_path = form_path
+        self.load_method = self.get_load_method()
         self.return_data_dict = self.get_return_data_dict()
         self.database_payload = self.get_database_payload()
 
@@ -17,16 +19,38 @@ class ReturnFiling:
         print('Return version: ', self.get_return_version())
         print('===')
 
-    def get_database_payload(self):
-        payload = {
-            "form_file_name": self.form_file_name,
-            "return_s3_doc_id": self.return_s3_doc_id,
-            "return_version": self.get_return_version(),
-            "ein": self.get_return_filer_ein(),
-            "return_filer_name": self.get_return_filer_name_full(),
-            "total_assets": self.get_total_assets_eoy()
-        }
+    def get_database_payload(self, return_format='dict'):
+        if return_format == 'dict':
+            payload = {
+                "form_file_name": self.form_file_name,
+                "return_s3_doc_id": self.return_s3_doc_id,
+                "return_version": self.get_return_version(),
+                "ein": self.get_return_filer_ein(),
+                "return_filer_name": self.get_return_filer_name_full(),
+                "tax_year": self.get_return_tax_year(),
+                "total_assets": self.get_total_assets_eoy()
+            }
+        elif return_format == 'tuple':
+            payload = (
+                self.return_s3_doc_id,
+                self.get_return_version(),
+                int(self.get_return_filer_ein()),
+                self.get_return_filer_name_full(),
+                int(self.get_return_tax_year()),
+                int(self.get_total_assets_eoy())
+            )
+        else:
+            print(f"[ERROR] Unhandled return format, {return_format}")
+
         return payload
+
+    def get_load_method(self):
+        if self.form_path == None:
+            method = 's3'
+        else:
+            method = 'file'
+
+        return method
         
     def get_return_data(self):
         return self.return_data_dict['ns0:Return']
@@ -88,6 +112,9 @@ class ReturnFiling:
     def get_return_header(self):
         return self.get_return_data()['ns0:ReturnHeader']
 
+    def get_return_tax_year(self):
+        return self.get_return_header()['ns0:TaxYear']
+
     def get_return_version(self):
         return self.get_return_data()['@returnVersion']
 
@@ -125,10 +152,22 @@ class ReturnFiling:
         return total_assets
 
     def get_xml_data(self):
-        return self.get_xml_tree().getroot()
+        return self.get_xml_tree()
 
     def get_xml_string(self):
         return ET.tostring(self.get_xml_data(), encoding='utf-8', method='xml')
 
     def get_xml_tree(self):
-        return ET.parse(self.form_path)
+        if self.load_method == 'file':
+            xml_tree = ET.parse(self.form_path).getroot()
+        elif self.load_method == 's3':
+            url = (
+                f"https://s3.amazonaws.com/irs-form-990/"
+                f"{self.form_file_name}"
+            )
+            r = requests.get(url)
+            xml_tree = ET.fromstring(r.content)
+        else:
+            print(f"[ERROR] Unhandled load method: {self.load_method}")
+
+        return xml_tree

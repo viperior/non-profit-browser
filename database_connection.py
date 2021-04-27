@@ -1,5 +1,6 @@
 import json
 import psycopg2
+import psycopg2.extras
 
 class DatabaseConnection:
     def __init__(self):
@@ -8,6 +9,17 @@ class DatabaseConnection:
         self.username = self.config['database_username']
         self.schema = self.config['database_schema']
         self.password = self.config['database_password']
+        self.etl_insert_batch_size_limit = self.config['etl_insert_batch_size_limit']
+        self.insert_queue = ()
+
+    def add_row_to_insert_queue(self, row_data):
+        self.insert_queue += ((row_data), )
+
+        if len(self.insert_queue) > self.etl_insert_batch_size_limit:
+            self.store_queue_to_database()
+
+    def empty_queue(self):
+        self.insert_queue = []
 
     def execute_sql(self, sql, use_schema=True, data=None):
         try:
@@ -69,15 +81,47 @@ class DatabaseConnection:
 
     def insert_single_record(self, payload):
         sql = "INSERT INTO form (return_s3_doc_id, return_version, ein,"\
-            "return_filer_name, total_assets) VALUES (%s, %s, %s, %s, %s);"
+            "return_filer_name, tax_year, total_assets) "\
+                "VALUES (%s, %s, %s, %s, %s, %s);"
         data = (
             payload['return_s3_doc_id'],
             payload['return_version'],
             payload['ein'],
             payload['return_filer_name'],
+            payload['tax_year'],
             payload['total_assets']
         )
         self.execute_sql(sql=sql, data=data)
+
+    def insert_batch(self):
+        sql = "INSERT INTO form (return_s3_doc_id, return_version, ein,"\
+            "return_filer_name, tax_year, total_assets) "\
+                "VALUES (%s, %s, %s, %s, %s, %s);"
+        connection = self.get_connection_with_schema()
+        autocommit = psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT
+        connection.set_isolation_level(autocommit)
+        cursor = connection.cursor()
+        psycopg2.extras.execute_batch(
+            cur=cursor,
+            sql=sql,
+            argslist=self.insert_queue,
+            page_size=self.etl_insert_batch_size_limit
+        )
+        self.empty_queue()
+
+    def select(self, sql):
+        connection = self.get_connection_with_schema()
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        records = cursor.fetchall()
+        
+        return records
+
+    def select_top_n_rows(self, table_name, n=100):
+        sql = f"SELECT * from {table_name} limit {n};"
+        rows = self.select(sql)
+
+        return rows
 
     def setup_database(self):
         self.uninstall_database()
@@ -99,10 +143,17 @@ class DatabaseConnection:
                 return_version text NOT NULL,
                 ein bigint NOT NULL,
                 return_filer_name text NOT NULL,
-                total_assets int
+                tax_year int NOT NULL,
+                total_assets bigint
             );
         """
         self.execute_sql(sql)
+
+    def store_queue_to_database(self):
+        self.insert_batch()
+
+    def store_row_to_database(self, payload):
+        self.add_row_to_insert_queue(payload)
 
     def uninstall_database(self):
         self.uninstall_table_form()
