@@ -22,9 +22,11 @@ def main():
 
             form_file_name = bucket_object.key
             current_return = return_filing.ReturnFiling(form_file_name)
-            connection.insert_single_record(current_return.get_database_payload())
+            connection.add_row_to_insert_queue(current_return.get_database_payload())
             record_insert_count += 1
             bar.update(index)
+
+        connection.process_insert_queue()
 
     print(f"Rows inserted: {record_insert_count}")
 
