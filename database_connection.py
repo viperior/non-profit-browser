@@ -16,7 +16,7 @@ class DatabaseConnection:
         self.insert_queue += ((row_data), )
 
         if len(self.insert_queue) > self.etl_insert_batch_size_limit:
-            self.store_queue_to_database()
+            self.process_insert_queue()
 
     def empty_queue(self):
         self.insert_queue = []
@@ -81,8 +81,9 @@ class DatabaseConnection:
 
     def process_insert_queue(self):
         sql = "INSERT INTO form (return_s3_doc_id, return_version, ein,"\
-            "return_filer_name, tax_year, total_assets) "\
-                "VALUES (%s, %s, %s, %s, %s, %s);"
+            "return_filer_name, tax_year, total_assets, "\
+            "return_header_timestamp) "\
+            "VALUES (%s, %s, %s, %s, %s, %s, %s);"
         connection = self.get_connection_with_schema()
         autocommit = psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT
         connection.set_isolation_level(autocommit)
@@ -130,13 +131,11 @@ class DatabaseConnection:
                 ein bigint NOT NULL,
                 return_filer_name text NOT NULL,
                 tax_year int NOT NULL,
-                total_assets bigint
+                total_assets bigint,
+                return_header_timestamp text
             );
         """
         self.execute_sql(sql)
-
-    def store_queue_to_database(self):
-        self.insert_batch()
 
     def store_row_to_database(self, payload):
         self.add_row_to_insert_queue(payload)

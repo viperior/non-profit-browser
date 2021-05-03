@@ -26,7 +26,8 @@ class ReturnFiling:
             int(self.get_return_filer_ein()),
             self.get_return_filer_name_full(),
             int(self.get_return_tax_year()),
-            int(self.get_total_assets_eoy())
+            int(self.get_total_assets_eoy()),
+            self.get_return_header_timestamp()
         )
 
         return payload
@@ -98,6 +99,9 @@ class ReturnFiling:
 
     def get_return_header(self):
         return self.get_return_data()['ns0:ReturnHeader']
+
+    def get_return_header_timestamp(self):
+        return self.get_return_header()['ns0:Timestamp']
 
     def get_return_tax_year(self):
         return self.get_return_header()['ns0:TaxYear']
