@@ -132,7 +132,7 @@ class DatabaseConnection:
                 return_filer_name text NOT NULL,
                 tax_year int NOT NULL,
                 total_assets bigint,
-                return_header_timestamp text
+                return_header_timestamp timestamp
             );
         """
         self.execute_sql(sql)
