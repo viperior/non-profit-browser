@@ -27,10 +27,24 @@ class ReturnFiling:
             self.get_return_filer_name_full(),
             int(self.get_return_tax_year()),
             int(self.get_total_assets_eoy()),
-            self.get_return_header_timestamp()
+            self.get_return_header_timestamp(),
+            self.get_gross_receipts()
         )
 
         return payload
+
+    def get_first_matching_node(self, root, search_keys):
+        for key in search_keys:
+            if key in root.keys():
+                return root[key]
+
+        return None
+
+    def get_gross_receipts(self):
+        return self.get_first_matching_node(
+            root=self.get_return_primary_form(),
+            search_keys=['ns0:GrossReceipts']
+        )
 
     def get_load_method(self):
         if self.form_path == None:
@@ -103,15 +117,8 @@ class ReturnFiling:
     def get_return_header_timestamp(self):
         return self.get_return_header()['ns0:Timestamp']
 
-    def get_return_tax_year(self):
-        return self.get_return_header()['ns0:TaxYear']
-
-    def get_return_version(self):
-        return self.get_return_data()['@returnVersion']
-
-    def get_total_assets_eoy(self):
+    def get_return_primary_form(self):
         return_data = self.get_return_data()['ns0:ReturnData']
-
         form_types = [
             '990',
             '990EZ',
@@ -124,22 +131,26 @@ class ReturnFiling:
             if form_key in return_data.keys():
                 form = return_data[form_key]
 
+        return form
+
+    def get_return_tax_year(self):
+        return self.get_return_header()['ns0:TaxYear']
+
+    def get_return_version(self):
+        return self.get_return_data()['@returnVersion']
+
+    def get_total_assets_eoy(self):
+        form = self.get_return_primary_form()
         total_asset_keys = [
             'ns0:TotalAssetsEOY',
             'ns0:TotalAssets',
             'ns0:FMVAssetsEOY'
         ]
-
-        for key in total_asset_keys:
-            if key in form.keys():
-                total_assets = form[key]
-                
-                if isinstance(total_assets, dict):
-                    if 'ns0:EOY' in total_assets.keys():
-                        total_assets = total_assets['ns0:EOY']
-                    
-                break
-
+        total_assets = self.get_first_matching_node(form, total_asset_keys)
+        
+        if isinstance(total_assets, dict):
+            total_assets = self.get_first_matching_node(total_assets, ['ns0:EOY'])
+            
         return total_assets
 
     def get_xml_data(self):
