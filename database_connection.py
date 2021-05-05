@@ -82,8 +82,8 @@ class DatabaseConnection:
     def process_insert_queue(self):
         sql = "INSERT INTO form (return_s3_doc_id, return_version, ein,"\
             "return_filer_name, tax_year, total_assets, "\
-            "return_header_timestamp) "\
-            "VALUES (%s, %s, %s, %s, %s, %s, %s);"
+            "return_header_timestamp, gross_receipts) "\
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"
         connection = self.get_connection_with_schema()
         autocommit = psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT
         connection.set_isolation_level(autocommit)
@@ -132,7 +132,8 @@ class DatabaseConnection:
                 return_filer_name text NOT NULL,
                 tax_year int NOT NULL,
                 total_assets bigint,
-                return_header_timestamp timestamp
+                return_header_timestamp timestamp,
+                gross_receipts bigint
             );
         """
         self.execute_sql(sql)
